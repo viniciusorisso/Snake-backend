@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>BoardMap.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li></li><li></li></ul><h3>Global</h3><ul><li><a href="global.html#amountCellsInSnake">amountCellsInSnake</a></li><li><a href="global.html#generateRandomTargetCell">generateRandomTargetCell</a></li><li><a href="global.html#getMoveDelay">getMoveDelay</a></li><li><a href="global.html#getRandomCell">getRandomCell</a></li><li><a href="global.html#isCellOutOfBoard">isCellOutOfBoard</a></li><li><a href="global.html#isTargetNewHead">isTargetNewHead</a></li><li><a href="global.html#lostTail">lostTail</a></li><li><a href="global.html#middleCell">middleCell</a></li><li><a href="global.html#move">move</a></li><li><a href="global.html#newHead">newHead</a></li><li><a href="global.html#newSnake">newSnake</a></li><li><a href="global.html#onKeyPress">onKeyPress</a></li><li><a href="global.html#startGame">startGame</a></li><li><a href="global.html#stop">stop</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">BoardMap.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import Coordenates from "./Coordenates";
+import Snake from "./Snake";
+
+/**
+ * Creates a new BoardMap
+ * @class
+ */
+export default class BoardMap {
+  /**
+   * 
+   * @param {number} boardSize 
+   * @param {number} cellSize 
+   * @param {number} speed 
+   */
+  constructor(boardSize = 0, cellSize, speed) {
+    super();
+    this.boardSize = new Coordenates(boardSize, boardSize);
+    this.targetCell = null;
+    this.snake = null;
+    this.running = false;
+    this.cellSize = cellSize;
+    this.speed = speed;
+  }
+  /**
+   * 
+   * @returns {Coordenates} BoardMap center's Coordenates
+   */
+  middleCell() {
+    let middleX = Math.round(this.boardSize.x / 2);
+    let middleY = Math.round(this.boardSize.y / 2);
+
+    return new Coordenates(middleX, middleY);
+  }
+  /**
+   * Create a new Snake and push to the Snake's Array
+   */
+  newSnake() {
+    const middleCell = this.middleCell();
+    this.snake = new Snake(middleCell);
+    this.targetCell = null;
+  }
+  /**
+   * Generates a new Target in the BoardMap and push to the Target's Array
+   */
+  generateRandomTargetCell() {
+    if (!this.targetCell) {
+      let targetCell = this.getRandomCell();
+      while (this.snake.amountCellsInSnake(targetCell) > 0) {
+        targetCell = this.getRandomCell;
+      }
+      this.targetCell = targetCell;
+    }
+  }
+  /**
+   * 
+   * @returns {Coordenates} Returns a random Coordenates inside the BoardMap
+   */
+  getRandomCell() {
+    return new Coordenates(
+      Math.floor(Math.random() * this.boardSize.x),
+      Math.floor(Math.random() * this.boardSize.y)
+    );
+  }
+  /**
+   * 
+   * @param {Coordenates} param0 
+   * @returns {boolean} Returns if this snake's movement is towards a Target
+   */
+  isTargetNewHead({ x, y }) {
+    let condition =
+      x + this.snake.direction.move.x === this.targetCell.x &amp;&amp;
+      y + this.snake.direction.move.y === this.targetCell.y;
+    return condition;
+  }
+  /**
+   * 
+   * @param {Coordenates} param0 
+   * @returns {boolean} Returns if this snake's movement is inside or not of the BoardMap
+   */
+  isCellOutOfBoard({ x, y }) {
+    return x &lt; 0 || y &lt; 0 || x >= this.boardSize.x || y >= this.boardSize.y;
+  }
+  /**
+   * 
+   * @returns {number} Returns a delay snake movement
+   */
+  getMoveDelay() {
+    return (2 / Number(this.speed)) * 1000;
+  }
+  /**
+   * Start the game
+   * Create new Snakes
+   * Start the movement
+   */
+  startGame() {
+    this.running = true;
+    this.newSnake();
+    this.move();
+  }
+  /**
+   * Snake's movement function
+   */
+  move() {
+    if (!this.running) {
+      return;
+    }
+
+    this.clear();
+    this.generateRandomTargetCell();
+
+    const newHeadCell = new Coordenates(
+      this.snake.tail.x + this.snake.direction.move.x,
+      this.snake.tail.y + this.snake.direction.move.y
+    );
+
+    if (
+      this.isCellOutOfBoard(newHeadCell) ||
+      this.snake.amountCellsInSnake() > 1
+    ) {
+      this.stop();
+      alert(`Game over! You've scored ${this.scores} points.`);
+      return;
+    }
+
+    if (this.isTargetNewHead(this.snake.tail)) {
+      this.snake.newHead(this.targetCell);
+      this.targetCell = null;
+      // this.addScores(this.speed);
+    } else {
+      this.snake.lostTail(newHeadCell);
+    }
+
+    this.context.beginPath();
+    this.drawCell(this.snake.vertebraes);
+    this.context.closePath();
+
+    setTimeout(() => this.move(), this.getMoveDelay());
+  }
+  /**
+   * 
+   * @param {Direction} newDirection 
+   */
+  onKeyPress(newDirection) {
+    if (!this.running) return;
+
+    if (Math.abs(newDirection.keyCode - this.snake.direction.keyCode) !== 2) {
+      this.snake.direction = newDirection;
+    }
+  }
+  /**
+   * Stop's Game function
+   * Clear and reset BoardMap info
+   */
+  stop() {
+    this.running = false;
+    this.snake = null;
+    this.targetCell = null;
+    this.clear();
+  }
+};
+
+class Vinicius {
+  constructor(sd, dd) {
+    this.sd = sd;
+    this.dd = dd;
+  }
+  set sd(value) {
+    this.sd = value;
+  }
+  /**
+   * @param {number} value
+   */
+  set dd(value) {
+    this.dd = value;
+  }
+  /**
+   * 
+   * @param {string} value 
+   * @returns {string}
+   */
+  risso(value) {
+    return `Esse nome '${value}' não é meu nome. Meu nome é Vinícius Risso`;
+  }
+}
+
+const x = new BoardMap()
+const y = new Vinicius()
+y.sd = 10
+y.dd = Array();
+const txt = y.risso()</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Fri May 12 2023 10:07:39 GMT-0300 (Horário Padrão de Brasília) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+</body>
+</html>
