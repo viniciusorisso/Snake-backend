@@ -204,6 +204,9 @@ export default class BoardMap {
     let newDirection = movements.find(_movement => _movement.direction === movement);
     
     if(!newDirection) return;
+    /**
+     * TODO: Movement not found ERROR
+     */
 
     // @ts-ignore
     if (Math.abs(newDirection.keyCode - this.snakes.get(userId).direction.keyCode) !== 2) {
@@ -223,9 +226,24 @@ export default class BoardMap {
     this.targetCells = [];
   }
 
-  getAnalytics() {
+  getState() {
+    const keys = Array.from( this.snakes.keys() ) ;
+    const snakes = new Map();
+    for (let index = 0; index < keys.length; index++) {
+      const snake = this.snakes.get(keys[index]);
+
+      /**
+       * TODO: implementar erro
+       */
+      if(!snake) {
+        throw new Error();
+      }
+
+      snakes.set(keys[index], snake.getSnakeState())
+    }
+
     return { 
-      snakes: this.snakes,
+      snakes,
       targetCells: this.targetCells
     }
   }

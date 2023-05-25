@@ -71,4 +71,17 @@ export default class GameLobby {
   userMove(userId, movement) {
     this.gameBoard.onKeyPress(userId, movement);
   }
+
+  /**
+   * @method getMapState
+   * @returns {any}
+   */
+  getMapState() {
+    const { snakes, targetCells } = this.gameBoard.getState();
+
+    return {
+      snakes: { ...Object.fromEntries(snakes) },
+      targetCells,
+    }
+  }
 }

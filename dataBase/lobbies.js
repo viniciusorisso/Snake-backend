@@ -51,7 +51,7 @@ const removeLobbyById = (lobbyId) => {
 /**
  * @function getLobbyById
  * @param {string} lobbyId 
- * @returns {GameLobby | undefined} game lobby found by its id 
+ * @returns {GameLobby | undefined} game lobby found by its id
  */
 const getLobbyById = (lobbyId) => {
   return _lobbies.find(el => el.id === lobbyId);
@@ -64,6 +64,7 @@ const getLobbyById = (lobbyId) => {
 const getLobbies = () => {
   return _lobbies;
 }
+
 export {
   createNewLobby,
   getLobbyById,

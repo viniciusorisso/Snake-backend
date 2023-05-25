@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import express from "express";
 import cors from "cors";
@@ -31,6 +32,20 @@ app.get('/login/:user', (req, res) => {
   });
 });
 
+app.get('/:lobbyId/start', (req, res) => {
+  if(!req.params.lobbyId)
+    res.json({statusCode: 500});
+
+  try {
+    const lobby = db.getLobbyById(req.params.lobbyId);
+    lobby?.startLobby();
+  } catch (error) {
+    res.json({statusCode: 404});
+  }
+
+  res.json({statusCode: 201});
+});
+
 app.post('/player', (req, res) => {
   const { lobbyId, userId, userMovement } = req.body;
 
@@ -39,9 +54,7 @@ app.post('/player', (req, res) => {
     lobby = db.getLobbyById(lobbyId);
   } catch (error) {
     // createNewLobby(userId);
-  }
-  finally {
-    lobby?.startLobby();
+    // lobby?.startLobby();
   }
 
   try {
@@ -52,7 +65,16 @@ app.post('/player', (req, res) => {
     res.json({statusCode: 500});
   }
 
-  res.json({statusCode: 200});
+  const mapState = lobby.getMapState();
+
+  console.log(mapState);
+
+  /**
+   * retornar lista de snakes e lista de targets
+   */
+  res.json({statusCode: 200, data: {
+    mapState
+  }});
 });
 
 app.listen(3000, () => {

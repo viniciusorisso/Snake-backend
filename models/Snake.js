@@ -77,4 +77,16 @@ export default class Snake {
     this.vertebraes.unshift(foodCoord);
     this.vertebraes.pop();
   }
+
+  /**
+   * @method getSnakeState
+   * @returns {any}
+   */
+  getSnakeState() {
+    return {
+      vertebraes: this.vertebraes,
+      direction: this.direction,
+      score: this.score
+    }
+  }
 };

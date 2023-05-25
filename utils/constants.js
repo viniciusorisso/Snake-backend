@@ -13,7 +13,7 @@ newMovement = new Movement('top', 38, new Coordenates(0, -1));
 movements.push(newMovement);
 newMovement = new Movement('right', 39, new Coordenates(1, 0));
 movements.push(newMovement);
-newMovement = new Movement('up', 40, new Coordenates(0, 1));
+newMovement = new Movement('down', 40, new Coordenates(0, 1));
 movements.push(newMovement);
 
 export default movements;
