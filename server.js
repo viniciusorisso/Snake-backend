@@ -4,6 +4,8 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { db } from "./dataBase/index.js";
+import http from 'http';
+import { Server } from "socket.io";
 
 const app = express();
 
@@ -77,6 +79,25 @@ app.post('/player', (req, res) => {
   }});
 });
 
-app.listen(3000, () => {
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('joao 20cm');
+});
+
+io.on('joao', () => {
+  console.log('joao');
+
+  io.send('acabou', 'as');
+});
+
+server.listen(3000, () => {
   console.log('Listening on port 3000');
 });
