@@ -1,5 +1,5 @@
 import SnakeNotFoundError from "../errors/SnakeNotFoundError.js";
-import movements from "../utils/constants.js";
+import { movements, gamePossibleStates } from "../utils/constants.js";
 import Coordenates from "./Coordenates.js";
 import Snake from "./Snake.js";
 
@@ -27,10 +27,10 @@ export default class BoardMap {
   snakes = new Map();
 
   /**
-   * @property running
-   * @type {boolean}
+   * @property gameState
+   * @type {gamePossibleStates}
    */
-  running;
+  gameState;
 
   /**
    * @property speed
@@ -50,7 +50,7 @@ export default class BoardMap {
    */
   constructor(boardSize = 0, speed) {
     this.boardSize = new Coordenates(boardSize, boardSize);
-    this.running = false;
+    this.gameState = gamePossibleStates.NOT_STARTED;
     this.speed = speed;
   }
 
@@ -140,7 +140,7 @@ export default class BoardMap {
    * @param {Array<string>} playersIds
    */
   startGame(playersIds) {
-    this.running = true;
+    this.gameState = gamePossibleStates.RUNNING;
     this.targetCells = [];
 
     if(!this.snakes.size) {
@@ -159,7 +159,7 @@ export default class BoardMap {
    * @param {Snake} snake
    */
   move(snake) {
-    if (!this.running) {
+    if (this.gameState !== gamePossibleStates.RUNNING) {
       return;
     }
 
@@ -175,7 +175,6 @@ export default class BoardMap {
       snake.amountCellsInSnake() > 1
     ) {
       this.stop();
-      console.log(`Game over! You've scored ${snake.score} points.`);
       return;
     }
 
@@ -197,7 +196,7 @@ export default class BoardMap {
    * @param {string} movement 
    */
   onKeyPress(userId, movement) {
-    if (!this.running) return;
+    if (this.gameState !== gamePossibleStates.RUNNING) return;
     if (!this.snakes.get(userId)) 
       throw new SnakeNotFoundError(`Snake with userId ${userId} not found.`);
 
@@ -221,7 +220,7 @@ export default class BoardMap {
    * Clear and reset BoardMap info
    */
   stop() {
-    this.running = false;
+    this.gameState = gamePossibleStates.FINISHED;
     this.snakes = new Map();
     this.targetCells = [];
   }

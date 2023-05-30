@@ -3,6 +3,16 @@ import Movement from "../models/Movement.js";
 
 /**
  * @constant
+ * @type {gamePossibleStates}
+ */
+const gamePossibleStates = {
+  NOT_STARTED: 0,
+  RUNNING: 1,
+  FINISHED: 2,
+}
+
+/**
+ * @constant
  * @type {Array<Movement>}
  */
 const movements = [];
@@ -16,4 +26,7 @@ movements.push(newMovement);
 newMovement = new Movement('down', 40, new Coordenates(0, 1));
 movements.push(newMovement);
 
-export default movements;
+export { 
+  movements,
+  gamePossibleStates
+};
