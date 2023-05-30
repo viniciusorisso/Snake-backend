@@ -1,5 +1,7 @@
 import BoardMap from "./BoardMap.js";
+import Coordenates from "./Coordenates.js";
 import User from "./User.js";
+import Snake from "./Snake.js";
 
 export default class GameLobby {
   /**
@@ -74,7 +76,7 @@ export default class GameLobby {
 
   /**
    * @method getMapState
-   * @returns {any}
+   * @returns {{snakes: Array<Snake>, targetCells: Array<Coordenates>}}
    */
   getMapState() {
     const { snakes, targetCells } = this.gameBoard.getState();
@@ -83,5 +85,21 @@ export default class GameLobby {
       snakes: { ...Object.fromEntries(snakes) },
       targetCells,
     }
+  }
+
+  /**
+   * @getter isRunning
+   * @returns {boolean}
+   */
+  get isRunning() {
+    return this.gameBoard.gameState === 1;
+  }
+
+  /**
+   * @getter isFinished
+   * @returns {boolean}
+   */
+  get isFinished() {
+    return this.gameBoard.gameState === 2;
   }
 }

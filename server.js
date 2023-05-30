@@ -18,10 +18,6 @@ app.use(
 
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.json('Hello World');
-});
-
 app.get('/login/:user', (req, res) => {
   let userId = req.params.user;
   const lobbyId = db.createNewLobby(userId);
@@ -34,7 +30,7 @@ app.get('/login/:user', (req, res) => {
   });
 });
 
-app.get('/:lobbyId/start', (req, res) => {
+app.get('/:lobbyId/start/', (req, res) => {
   if(!req.params.lobbyId)
     res.json({statusCode: 500});
 
@@ -69,8 +65,6 @@ app.post('/player', (req, res) => {
 
   const mapState = lobby.getMapState();
 
-  console.log(mapState);
-
   /**
    * retornar lista de snakes e lista de targets
    */
@@ -89,14 +83,53 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('joao 20cm');
+  let socketLobbyId = null;
+
+  socket.on('move', (arg) => {
+    const { userId, lobbyId, userMovement } = arg;
+
+    let lobby = null;
+
+    if(!socketLobbyId)
+      socketLobbyId = lobbyId;
+
+    try {
+      lobby = db.getLobbyById(lobbyId);
+    } catch (error) {
+      // createNewLobby(userId);
+      // lobby?.startLobby();
+    }
+
+    try {
+      // @ts-ignore
+      lobby.userMove(userId, userMovement);
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  setInterval(() => {
+    let currentLobby = null;
+
+    try {
+      currentLobby = db.getLobbyById(socketLobbyId); 
+    } catch (error) {
+      
+    }
+
+    if(currentLobby?.isFinished) {
+      const mapState = currentLobby.getMapState();
+      socket.emit('gameFinished', mapState);
+    }
+
+    if(currentLobby?.isRunning) {
+      const mapState = currentLobby.getMapState();
+      socket.emit('mapState', mapState);
+    }
+      
+  }, 10);
 });
 
-io.on('joao', () => {
-  console.log('joao');
-
-  io.send('acabou', 'as');
-});
 
 server.listen(3000, () => {
   console.log('Listening on port 3000');

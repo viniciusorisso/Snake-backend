@@ -1,4 +1,4 @@
-import constants from "../utils/constants.js";
+import { movements } from "../utils/constants.js";
 import Coordenates from "./Coordenates.js";
 import Movement from "./Movement.js";
 
@@ -38,7 +38,7 @@ export default class Snake {
     this.vertebraes = [];
     this.vertebraes.unshift(new Coordenates(mapMiddleCell.x, mapMiddleCell.y));
     const randomDirectionIndex = Math.floor(Math.random() * 4);
-    this.direction = constants[randomDirectionIndex];
+    this.direction = movements[randomDirectionIndex];
   }
   get tail() {
     return this.vertebraes[0];
