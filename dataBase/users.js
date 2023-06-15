@@ -36,8 +36,13 @@ const removeUserById = (userId) => {
   }
 }
 
+const userExists = (userId) => {
+  return !!_users.find(el => el.id === userId);
+};
+
 export {
   setNewUser,
   getUserList,
-  removeUserById
+  removeUserById,
+  userExists
 }

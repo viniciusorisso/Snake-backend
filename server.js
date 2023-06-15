@@ -18,16 +18,50 @@ app.use(
 
 app.use(bodyParser.json());
 
-app.get('/login/:user', (req, res) => {
-  let userId = req.params.user;
-  const lobbyId = db.createNewLobby(userId);
+app.post('/login', (req, res) => {
+  const { userId, lobbyId } = req.body;
 
-  res.json({
-    statusCode: 201,
-    data: {
-      lobbyId: lobbyId
+  let userLobbyId = null;
+
+  let statusCode = 0;
+  let errorMessage = 'Deu ruim!'
+
+  try {
+    if (!lobbyId) {
+      userLobbyId = db.createNewLobby(userId);
     }
-  });
+    else {
+      userLobbyId = db.getLobbyById(lobbyId)?.id;
+      db.addUserToLobby(userId, userLobbyId);
+    }      
+  } catch (error) {
+    if(error?.type === 'UserAlreadyRegisteredError') {
+      statusCode = 422;
+      errorMessage = 'Username inválido.'
+    }
+
+    else if(error?.type === 'LobbyNotFoundError') {
+      statusCode = 422;
+      errorMessage = 'LobbyId inválido.'
+    }
+    else {
+      statusCode = 500;
+      errorMessage = 'Deu ruim!'
+    }
+  }
+
+  if(statusCode !== 0) {
+    res.status(statusCode).json({
+      error: errorMessage
+    });
+  }
+  else {
+    res.status(201).json({
+      data: {
+        lobbyId: userLobbyId
+      }
+    });
+  }
 });
 
 app.get('/:lobbyId/start/', (req, res) => {
