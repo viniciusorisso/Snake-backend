@@ -84,7 +84,9 @@ export default class BoardMap {
       return;
 
     let targetCell = this.getRandomCell();
-
+    while (!this.isTargetValid(targetCell)) {
+      targetCell = this.getRandomCell();
+    }
     this.targetCells.push(targetCell);
   }
 
@@ -108,8 +110,8 @@ export default class BoardMap {
   isTargetNewHead({ x, y }, snake) {
     let cell = this.targetCells.find(
       cell => 
-        x + snake.direction.move.x === cell.x &&
-        y + snake.direction.move.y === cell.y
+        x === cell.x &&
+        y === cell.y
     );
     
     return cell;
@@ -158,10 +160,12 @@ export default class BoardMap {
    * @function Snake's movement function
    * @param {Snake} snake
    */
-  move(snake) {
+  move(userId) {
     if (this.gameState !== gamePossibleStates.RUNNING) {
       return;
     }
+
+    const snake = this.snakes.get(userId)
 
     this.generateRandomTargetCell();
 
@@ -169,10 +173,11 @@ export default class BoardMap {
       snake.tail.x + snake.direction.move.x,
       snake.tail.y + snake.direction.move.y
     );
-
+    
     if (
       this.isCellOutOfBoard(newHeadCell) ||
-      snake.amountCellsInSnake() > 1
+      snake.amountCellsInSnake() > 1 ||
+      !this.isTargetValid(newHeadCell)
     ) {
       this.stop();
       return;
@@ -186,8 +191,6 @@ export default class BoardMap {
         snake.lostTail(newHeadCell);
       }
     }
-
-    setTimeout(() => this.move(snake), this.getMoveDelay());
   }
 
   /**
@@ -245,5 +248,16 @@ export default class BoardMap {
       snakes,
       targetCells: this.targetCells
     }
+  }
+
+  isTargetValid(targetCell) {
+    let validTarget = true;
+
+    for (let [_, value] of this.snakes) {
+      if (!validTarget) break;
+      validTarget = !value.vertebraes.some(el => el.x === targetCell.x && el.y === targetCell.y);
+    }
+
+    return validTarget;
   }
 };

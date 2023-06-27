@@ -87,6 +87,10 @@ export default class GameLobby {
     }
   }
 
+  gameNewLoop(userId) {
+    this.gameBoard.move(userId);
+  }
+
   /**
    * @getter isRunning
    * @returns {boolean}

@@ -46,7 +46,6 @@ app.post('/login', (req, res) => {
     }
     else {
       statusCode = 500;
-      errorMessage = 'Deu ruim!'
     }
   }
 
@@ -118,6 +117,7 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
   let socketLobbyId = null;
+  let socketUserId = null;
 
   socket.on('move', (arg) => {
     const { userId, lobbyId, userMovement } = arg;
@@ -142,13 +142,34 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('startGame', (arg) => {
+    const { lobbyId } = arg;
+
+    if(!lobbyId)
+      return;
+  
+    try {
+      const lobby = db.getLobbyById(lobbyId);
+      lobby?.startLobby();
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  socket.on('joinLobby', (arg) => {
+    const { lobbyId, userId } = arg;
+
+    socketLobbyId = lobbyId;
+    socketUserId = userId;
+  });
+
   setInterval(() => {
     let currentLobby = null;
 
     try {
       currentLobby = db.getLobbyById(socketLobbyId); 
     } catch (error) {
-      
+      return;
     }
 
     if(currentLobby?.isFinished) {
@@ -157,11 +178,12 @@ io.on('connection', (socket) => {
     }
 
     if(currentLobby?.isRunning) {
+      currentLobby.gameNewLoop(socketUserId);
       const mapState = currentLobby.getMapState();
       socket.emit('mapState', mapState);
     }
       
-  }, 10);
+  }, 4000 / 12);
 });
 
 
