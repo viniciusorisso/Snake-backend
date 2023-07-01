@@ -20,7 +20,7 @@ export default class GameLobby {
    * @type {string}
    */
   id;
-    
+
   /**
    * @constructor GameLobby constructor
    * @param {number | undefined} boardSize

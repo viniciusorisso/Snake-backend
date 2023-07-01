@@ -1,7 +1,7 @@
 
 import GameLobby from "../models/GameLobby.js";
 import User from "../models/User.js";
-import { setNewUser, userExists } from "./users.js";
+import { setNewUser, userExists, removeUserById } from "./users.js";
 import UserAlreadyRegisteredError from '../errors/UserAlreadyRegisteredError.js';
 import LobbyNotFoundError from '../errors/LobbyNotFoundError.js';
 
@@ -35,9 +35,11 @@ const createNewLobby = (userId) => {
     throw new UserAlreadyRegisteredError();
 
   const lobby = new GameLobby(boardSize, speed, lobbyId);
+  console.log(`LOBBYID: ${lobbyId} - CREATED`);
   lobby.addUser(user);
 
   setNewUser(user);
+  console.log(`USERID: ${userId} - JOINS - LOBBY: ${lobbyId}`);
   _lobbies.push(lobby);
 
   return lobby.id;
@@ -49,8 +51,15 @@ const createNewLobby = (userId) => {
  */
 const removeLobbyById = (lobbyId) => {
   for (let i = 0; i < _lobbies.length; i++)
-    if (_lobbies[i].id === lobbyId)
+    if (_lobbies[i].id === lobbyId) {
+      _lobbies[i].users.forEach(
+        function (user) {
+          removeUserById(user.id);
+        }
+      );
       _lobbies.splice(i, 1);
+      console.log(`LOBBYID: ${lobbyId} - DELETED`);
+    }
 }
 
 /**
@@ -86,6 +95,7 @@ const addUserToLobby = (userId, lobbyId) => {
  
   lobby.addUser(user);
 
+  console.log(`USERID: ${userId} - JOINS - LOBBY: ${lobbyId}`);
   setNewUser(user);
 };
 

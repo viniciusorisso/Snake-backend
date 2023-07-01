@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
     socket.join(roomName);
     socket.number = 1;
 
-    console.log(`USERID: ${userId} - CREATES - NEW LOBBY: ${roomName}\n`);
+    socket.emit('joinedLobby', { lobbyId: roomName });
   }
 
   function joinLobby (arg) {
@@ -111,9 +111,10 @@ io.on('connection', (socket) => {
 
     socket.join(lobbyId);
     socket.number = 2;
-  
-    console.log(`USERID: ${userId} - JOINS - NEW LOBBY: ${lobbyId}\n`);
+    
     startGameInterval(lobbyId);
+
+    socket.emit('joinedLobby', { lobbyId });
   }
 
   function move (arg) {
@@ -170,7 +171,7 @@ const startGameInterval = (lobbyId) => {
       const mapState = currentLobby.getMapState();
       emitGameState(lobbyId, mapState);
     }
-  }, 5000/12);
+  }, 1000/12);
 };
 
 const emitGameState = (lobbyId, mapState) => {
@@ -182,6 +183,7 @@ const emitGameOver = (lobbyId, mapState) => {
   delete clientRooms[lobbyId];
   io.sockets.in(lobbyId)
     .emit('gameFinished', mapState);
+  io.sockets.in(lobbyId).socketsLeave(lobbyId);
 }
 
 server.listen(3000, () => {

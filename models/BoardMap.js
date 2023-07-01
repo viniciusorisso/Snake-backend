@@ -43,6 +43,8 @@ export default class BoardMap {
    */
   scores = new Map();
 
+  movementLock = new Map();
+
   /**
    * @constructor
    * @param {number} boardSize 
@@ -75,6 +77,7 @@ export default class BoardMap {
     const middleCell = this.middleCell().add(rand);
     this.snakes.set(userId, new Snake(middleCell));
     this.scores.set(userId, 0);
+    this.movementLock.set(userId, false);
   }
 
   /**
@@ -198,9 +201,12 @@ export default class BoardMap {
    * @param {string} movement 
    */
   onKeyPress(userId, movement) {
+    if (this.movementLock.get(userId)) return;
     if (this.gameState !== gamePossibleStates.RUNNING) return;
     if (!this.snakes.get(userId)) 
       throw new SnakeNotFoundError(`Snake with userId ${userId} not found.`);
+
+    this.movementLock.set(userId, true);
 
     let newDirection = movements.find(_movement => _movement.direction === movement);
     
@@ -214,6 +220,10 @@ export default class BoardMap {
       // @ts-ignore
       this.snakes.get(userId).direction = newDirection;
     }
+
+    setTimeout(() => {
+      this.movementLock.set(userId, false);
+    }, 100);
   }
 
   /**
