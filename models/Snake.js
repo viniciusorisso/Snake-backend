@@ -32,13 +32,22 @@ export default class Snake {
 
   /**
    * @constructor
-   * @param {Coordenates} mapMiddleCell 
+   * @param {Coordenates} targetCell 
    */
-  constructor(mapMiddleCell = defaultSnakeCoordenates) {
+  constructor(targetCell = defaultSnakeCoordenates) {
+    const randYSign = Math.round(Math.random()) * 2 - 1;
+    const randXSign = Math.round(Math.random()) * 2 - 1;
+    const coordenate = new Coordenates(targetCell.x + randXSign * Math.random() * 5, targetCell.y + randYSign * Math.random() * 5);
+    
     this.vertebraes = [];
-    this.vertebraes.unshift(new Coordenates(mapMiddleCell.x, mapMiddleCell.y));
+    this.vertebraes.unshift(coordenate);
+    this.vertebraes.unshift(new Coordenates(coordenate.x , coordenate.y));
+    this.vertebraes.unshift(new Coordenates(coordenate.x , coordenate.y));
     const randomDirectionIndex = Math.floor(Math.random() * 4);
     this.direction = movements[randomDirectionIndex];
+  }
+  get head () {
+    return this.vertebraes[this.vertebraes.length - 1];
   }
   get tail() {
     return this.vertebraes[0];
@@ -76,6 +85,18 @@ export default class Snake {
   lostTail(foodCoord) {
     this.vertebraes.unshift(foodCoord);
     this.vertebraes.pop();
+  }
+
+  /**
+   * @function checkCollision
+   * @param {Coordenates} target 
+   * @returns {boolean}
+   */
+  checkCollision (target) { 
+    if (this.vertebraes.length === 1)
+      return false;
+  
+    return this.vertebraes.some(vertebrae => vertebrae.x === target.x && vertebrae.y === target.y);
   }
 
   /**

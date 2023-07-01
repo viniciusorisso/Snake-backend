@@ -73,6 +73,7 @@ export default class BoardMap {
   newSnake(userId) {
     const middleCell = this.middleCell();
     this.snakes.set(userId, new Snake(middleCell));
+    this.scores.set(userId, 0);
   }
 
   /**
@@ -84,7 +85,7 @@ export default class BoardMap {
       return;
 
     let targetCell = this.getRandomCell();
-    while (!this.isTargetValid(targetCell)) {
+    while (!this.isTargetCellValid(targetCell)) {
       targetCell = this.getRandomCell();
     }
     this.targetCells.push(targetCell);
@@ -107,7 +108,7 @@ export default class BoardMap {
    * @param {Snake} snake
    * @returns {Coordenates | undefined} Returns if this snake's movement is towards a Target
    */
-  isTargetNewHead({ x, y }, snake) {
+  isTargetNewHead({ x, y }) {
     let cell = this.targetCells.find(
       cell => 
         x === cell.x &&
@@ -150,10 +151,6 @@ export default class BoardMap {
         this.newSnake(userId);
       });
     }
-
-    this.snakes.forEach(
-      (snake) => this.move(snake)
-    );
   }
 
   /**
@@ -177,7 +174,7 @@ export default class BoardMap {
     if (
       this.isCellOutOfBoard(newHeadCell) ||
       snake.amountCellsInSnake() > 1 ||
-      !this.isTargetValid(newHeadCell)
+      this.isTargetInvalid(userId)
     ) {
       this.stop();
       return;
@@ -187,6 +184,8 @@ export default class BoardMap {
       if (this.isTargetNewHead(newHeadCell, snake)) {
         snake.newHead(newHeadCell, this.speed);
         this.targetCells.splice(i, 1);
+        const score = this.scores.get(userId) + 10;
+        this.scores.set(userId, score);
       } else {
         snake.lostTail(newHeadCell);
       }
@@ -250,12 +249,36 @@ export default class BoardMap {
     }
   }
 
-  isTargetValid(targetCell) {
-    let validTarget = true;
+  isTargetInvalid(userId) {
+    const player = this.snakes.get(userId);
+    let isInvalid = false;
+    
+    this.snakes.forEach( snake => {
+      if (isInvalid) {
+        return;
+      }
+      // Se o jogador colidiu consigo mesmo
+      else if(player === snake) {
+        isInvalid = snake.checkCollision(snake.head);
+        console.log('JOGADOR ' + isInvalid + ' ' + false);
+      }
+      // Se o jogador colidiu com o outro jogador
+      else {
+        console.log('jogador ' + '( ' + player.head.x + ' - ' + player.head.y + ' )', 'outra ' + '( ' + snake.head.x + ' - ' + snake.head.y + ' )');
+        isInvalid = snake.checkCollision(player.head);
 
-    for (let [_, value] of this.snakes) {
-      if (!validTarget) break;
-      validTarget = !value.vertebraes.some(el => el.x === targetCell.x && el.y === targetCell.y);
+        console.log('OUTRO ' + isInvalid + ' ' + false);
+      }
+    });
+
+    return isInvalid;
+  }
+
+  isTargetCellValid(targetCell) {
+    let validTarget = false;
+
+    for (let [_, snake] of this.snakes) {
+      validTarget = !snake.checkCollision(targetCell);
     }
 
     return validTarget;

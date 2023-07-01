@@ -87,8 +87,10 @@ export default class GameLobby {
     }
   }
 
-  gameNewLoop(userId) {
-    this.gameBoard.move(userId);
+  gameNewLoop() {
+    this.users.forEach(
+      user => this.gameBoard.move(user.id)
+    );
   }
 
   /**
