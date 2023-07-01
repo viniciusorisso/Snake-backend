@@ -228,24 +228,35 @@ export default class BoardMap {
   }
 
   getState() {
-    const keys = Array.from( this.snakes.keys() ) ;
+    const snakesKeys = Array.from( this.snakes.keys() );
+    const scoresKeys = Array.from( this.scores.keys() );
     const snakes = new Map();
-    for (let index = 0; index < keys.length; index++) {
-      const snake = this.snakes.get(keys[index]);
+    const scores = new Map();
+    
+    for (const element of snakesKeys) {
+      const snake = this.snakes.get(element);
 
-      /**
-       * TODO: implementar erro
-       */
       if(!snake) {
         throw new Error();
       }
 
-      snakes.set(keys[index], snake.getSnakeState())
+      snakes.set(element, snake.getSnakeState())
+    }
+
+    for (const element of scoresKeys) {
+      const score = this.scores.get(element);
+
+      if(score === null || score === undefined) {
+        throw new Error();
+      }
+
+      scores.set(element, score);
     }
 
     return { 
       snakes,
-      targetCells: this.targetCells
+      targetCells: this.targetCells,
+      scores
     }
   }
 

@@ -79,11 +79,12 @@ export default class GameLobby {
    * @returns {{snakes: Array<Snake>, targetCells: Array<Coordenates>}}
    */
   getMapState() {
-    const { snakes, targetCells } = this.gameBoard.getState();
+    const { snakes, targetCells, scores } = this.gameBoard.getState();
 
     return {
       snakes: { ...Object.fromEntries(snakes) },
       targetCells,
+      scores: { ...Object.fromEntries(scores) }
     }
   }
 
