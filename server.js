@@ -170,7 +170,7 @@ const startGameInterval = (lobbyId) => {
       const mapState = currentLobby.getMapState();
       emitGameState(lobbyId, mapState);
     }
-  }, 3000/12);
+  }, 5000/12);
 };
 
 const emitGameState = (lobbyId, mapState) => {

@@ -71,7 +71,8 @@ export default class BoardMap {
    * @param {string} userId
    */
   newSnake(userId) {
-    const middleCell = this.middleCell();
+    const rand = new Coordenates(Math.floor(Math.random() * 15), Math.floor(Math.random() * 15));
+    const middleCell = this.middleCell().add(rand);
     this.snakes.set(userId, new Snake(middleCell));
     this.scores.set(userId, 0);
   }
@@ -88,7 +89,6 @@ export default class BoardMap {
     while (!this.isTargetCellValid(targetCell)) {
       targetCell = this.getRandomCell();
     }
-    console.log(this.targetCells);
     this.targetCells.push(targetCell);
   }
 
@@ -116,7 +116,7 @@ export default class BoardMap {
         y === cell.y
     );
     
-    return cell;
+    return this.targetCells.indexOf(cell);
   }
 
   /**
@@ -158,7 +158,7 @@ export default class BoardMap {
    * @function Snake's movement function
    * @param {Snake} snake
    */
-  move(userId) {
+  async move(userId) {
     if (this.gameState !== gamePossibleStates.RUNNING) {
       return;
     }
@@ -180,15 +180,14 @@ export default class BoardMap {
       return;
     }
     
-    for (let i = 0; i < this.targetCells.length; i++) {
-      if (this.isTargetNewHead(newHeadCell, snake)) {
-        snake.newHead(newHeadCell, this.speed);
-        this.targetCells.splice(i, 1);
-        const score = this.scores.get(userId) + 10;
-        this.scores.set(userId, score);
-      } else {
-        snake.move(newHeadCell);
-      }
+    const index = this.isTargetNewHead(newHeadCell);
+    if (index >= 0) {
+      snake.newHead(newHeadCell, this.speed);
+      this.targetCells.splice(index, 1);
+      const score = this.scores.get(userId) + 10;
+      this.scores.set(userId, score);
+    } else {
+      snake.move(newHeadCell);
     }
 
   }
@@ -261,14 +260,10 @@ export default class BoardMap {
       // Se o jogador colidiu consigo mesmo
       else if(player === snake) {
         isInvalid = snake.checkCollision(snake.head);
-        console.log('JOGADOR ' + isInvalid + ' ' + false);
       }
       // Se o jogador colidiu com o outro jogador
       else {
-        console.log('jogador ' + '( ' + player.head.x + ' - ' + player.head.y + ' )', 'outra ' + '( ' + snake.head.x + ' - ' + snake.head.y + ' )');
         isInvalid = snake.checkCollision(player.head);
-
-        console.log('OUTRO ' + isInvalid + ' ' + false);
       }
     });
 
