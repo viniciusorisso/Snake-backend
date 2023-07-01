@@ -88,6 +88,7 @@ export default class BoardMap {
     while (!this.isTargetCellValid(targetCell)) {
       targetCell = this.getRandomCell();
     }
+    console.log(this.targetCells);
     this.targetCells.push(targetCell);
   }
 
@@ -173,13 +174,12 @@ export default class BoardMap {
     
     if (
       this.isCellOutOfBoard(newHeadCell) ||
-      snake.amountCellsInSnake() > 1 ||
       this.isTargetInvalid(userId)
     ) {
       this.stop();
       return;
     }
-
+    
     for (let i = 0; i < this.targetCells.length; i++) {
       if (this.isTargetNewHead(newHeadCell, snake)) {
         snake.newHead(newHeadCell, this.speed);
@@ -187,9 +187,10 @@ export default class BoardMap {
         const score = this.scores.get(userId) + 10;
         this.scores.set(userId, score);
       } else {
-        snake.lostTail(newHeadCell);
+        snake.move(newHeadCell);
       }
     }
+
   }
 
   /**

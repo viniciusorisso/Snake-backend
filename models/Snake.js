@@ -36,44 +36,30 @@ export default class Snake {
    */
   constructor(targetCell = defaultSnakeCoordenates) {
     this.setStartingDirection();
-    let directionToGrow = this.direction.move * -1
-    console.log(directionToGrow);
+    let directionToGrow = this.direction.move;
 
     const coordenate = new Coordenates(targetCell.x, targetCell.y);
     this.vertebraes = [];
-    this.vertebraes.unshift(coordenate);
+    this.vertebraes.push(coordenate);
     for (let i = 1; i < 3; i++) {
-      const coord = coordenate + directionToGrow;
-      console.log(coord)
-      this.vertebraes.unshift(coord);
+      const coord = coordenate.add(directionToGrow.times(i));
+      this.vertebraes.push(coord);
     }
-    console.log(this.vertebraes);
   }
 
   setStartingDirection() {
     const randomDirectionIndex = Math.floor(Math.random() * 4);
     this.direction = movements[randomDirectionIndex];
   }
-  get head () {
+  get tail () {
     return this.vertebraes[this.vertebraes.length - 1];
   }
-  get tail() {
+  get head() {
     return this.vertebraes[0];
   }
   get size() {
     return this.vertebraes.length;
   }
-  /**
-   * @function amountCellsInSnake
-   * @param {Coordenates|null} targetCell 
-   * @returns {number}
-   */
-  amountCellsInSnake(targetCell = null) {
-    let cell = targetCell ?? this.tail;
-    return this.vertebraes.filter(({ x, y }) => x === cell.x && y === cell.y)
-      .length;
-  }
-
   /**
    * @function newHead Adds new head to the snake and add more points to score
    * @param {Coordenates} param0
@@ -82,17 +68,17 @@ export default class Snake {
   newHead({ x, y }, speed) {
     const newHeadCell = new Coordenates(x, y);
 
-    this.vertebraes.unshift(newHeadCell);
+    this.vertebraes.push(newHeadCell);
     this.score += speed;
   }
 
   /**
-   * @function lostTail
+   * @function move
    * @param {Coordenates} foodCoord 
    */
-  lostTail(foodCoord) {
-    this.vertebraes.unshift(foodCoord);
-    this.vertebraes.pop();
+  move(foodCoord) {
+    this.vertebraes.shift();
+    this.vertebraes.push(foodCoord);
   }
 
   /**
@@ -101,10 +87,8 @@ export default class Snake {
    * @returns {boolean}
    */
   checkCollision (target) { 
-    if (this.vertebraes.length === 1)
-      return false;
-  
-    return this.vertebraes.some(vertebrae => vertebrae.x === target.x && vertebrae.y === target.y);
+    return this.vertebraes.slice(1, this.size)
+      .some(vertebrae => vertebrae.x === target.x && vertebrae.y === target.y);
   }
 
   /**

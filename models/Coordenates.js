@@ -10,19 +10,19 @@ export default class Coordenates {
      * @param {number} y
      */
     constructor(x, y) {
-        this.x = x;
-        this.y = y;
+      this.x = x;
+      this.y = y;
     }
 
-    '+'(another) {
-        return new Coordenates(
-            this.x + another.x,
-            this.y + another.y);
+    add (another) {
+      return new Coordenates(
+        this.x + another.x,
+        this.y + another.y);
     }
 
-    '*'(multiplier) {
-        return new Coordenates(
-            this.x * multiplier,
-            this.y * multiplier);
+    times (multiplier) {
+      return new Coordenates(
+        this.x * multiplier,
+        this.y * multiplier);
     }
 };

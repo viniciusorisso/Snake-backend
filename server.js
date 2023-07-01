@@ -30,24 +30,56 @@ const clientRooms = {};
 
 io.on('connection', (socket) => {
 
-  socket.on('newLobby', (arg) => {
+  socket.on('newLobby', newLobby);
+
+  socket.on('joinLobby', joinLobby);
+
+  socket.on('move', move);
+
+  socket.on('startSoloGame', startSoloGame);
+
+  function newLobby (arg) {
     const { userId } = arg;
 
     const roomName = `sala${db.getLobbies().length}`;
+
+    try {
+      db.createNewLobby(userId);
+    } catch (error) {
+      socket.emit('invalidUser');
+      return;
+    }
+  
     clientRooms[userId] = roomName;
 
-    db.createNewLobby(userId);
-    
     socket.join(roomName);
     socket.number = 1;
 
     console.log(`USERID: ${userId} - CREATES - NEW LOBBY: ${roomName}\n`);
-  });
+  }
 
-  socket.on('joinLobby', (arg) => {
+  function joinLobby (arg) {
     const { lobbyId, userId } = arg;
 
-    if (!lobbyId) return;
+    if (!lobbyId) {
+      socket.emit('invalidLobbyId');
+
+      return;
+    }
+
+    try {
+      const gameIsRunning = db.getLobbyById(lobbyId).isRunning;
+
+      if (gameIsRunning) {
+        socket.emit('gameAlreadyStarted');
+  
+        return;
+      }
+    } catch (error) {
+      socket.emit('invalidLobbyId');
+      
+      return;
+    }
 
     const room = io.sockets.adapter.rooms.get(lobbyId);
 
@@ -67,7 +99,14 @@ io.on('connection', (socket) => {
       return;
     }
 
-    db.addUserToLobby(userId, lobbyId);    
+    try {
+      db.addUserToLobby(userId, lobbyId);    
+    } catch (error) {
+      socket.emit('invalidUser');
+
+      return;
+    }
+
     clientRooms[userId] = lobbyId;
 
     socket.join(lobbyId);
@@ -75,9 +114,9 @@ io.on('connection', (socket) => {
   
     console.log(`USERID: ${userId} - JOINS - NEW LOBBY: ${lobbyId}\n`);
     startGameInterval(lobbyId);
-  });
+  }
 
-  socket.on('move', (arg) => {
+  function move (arg) {
     const { userId, userMovement } = arg;
 
     const room = clientRooms[userId];
@@ -89,24 +128,25 @@ io.on('connection', (socket) => {
     try {
       lobby = db.getLobbyById(room);
     } catch (error) {
-      // createNewLobby(userId);
-      // lobby?.startLobby();
+      socket.emit('invalidLobbyId')
+
+      return;
     }
-    // console.log(lobby);
+    
     try {
       // @ts-ignore
       lobby.userMove(userId, userMovement);
     } catch (error) {
-      console.log(error);
+      socket.emit('invalidMove');
     }
-  });
+  }
 
-  socket.on('startSoloGame', (arg) => {
+  function startSoloGame (arg) {
     const { userId } = arg;
     const lobbyId = clientRooms[userId];
     if (!lobbyId) return;
     startGameInterval(lobbyId);
-  });
+  }
 });
 
 const startGameInterval = (lobbyId) => {
