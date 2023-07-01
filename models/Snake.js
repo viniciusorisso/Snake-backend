@@ -32,17 +32,25 @@ export default class Snake {
 
   /**
    * @constructor
-   * @param {Coordenates} targetCell 
+   * @param {Coordenates} targetCell
    */
   constructor(targetCell = defaultSnakeCoordenates) {
-    const randYSign = Math.round(Math.random()) * 2 - 1;
-    const randXSign = Math.round(Math.random()) * 2 - 1;
-    const coordenate = new Coordenates(targetCell.x + randXSign * Math.random() * 5, targetCell.y + randYSign * Math.random() * 5);
-    
+    this.setStartingDirection();
+    let directionToGrow = this.direction.move * -1
+    console.log(directionToGrow);
+
+    const coordenate = new Coordenates(targetCell.x, targetCell.y);
     this.vertebraes = [];
     this.vertebraes.unshift(coordenate);
-    this.vertebraes.unshift(new Coordenates(coordenate.x , coordenate.y));
-    this.vertebraes.unshift(new Coordenates(coordenate.x , coordenate.y));
+    for (let i = 1; i < 3; i++) {
+      const coord = coordenate + directionToGrow;
+      console.log(coord)
+      this.vertebraes.unshift(coord);
+    }
+    console.log(this.vertebraes);
+  }
+
+  setStartingDirection() {
     const randomDirectionIndex = Math.floor(Math.random() * 4);
     this.direction = movements[randomDirectionIndex];
   }
