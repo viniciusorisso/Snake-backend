@@ -171,7 +171,7 @@ const startGameInterval = (lobbyId) => {
       const mapState = currentLobby.getMapState();
       emitGameState(lobbyId, mapState);
     }
-  }, 1000/12);
+  }, 5* 1000/12);
 };
 
 const emitGameState = (lobbyId, mapState) => {
@@ -180,10 +180,9 @@ const emitGameState = (lobbyId, mapState) => {
 }
 
 const emitGameOver = (lobbyId, mapState) => {
-  delete clientRooms[lobbyId];
   io.sockets.in(lobbyId)
     .emit('gameFinished', mapState);
-  io.sockets.in(lobbyId).socketsLeave(lobbyId);
+  io.socketsLeave(lobbyId);
 }
 
 server.listen(3000, () => {

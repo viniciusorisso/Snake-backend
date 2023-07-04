@@ -133,14 +133,6 @@ export default class BoardMap {
 
   /**
    * @function 
-   * @returns {number} Returns a delay snake movement
-   */
-  getMoveDelay() {
-    return (2 / Number(this.speed)) * 1000;
-  }
-
-  /**
-   * @function 
    * Start the game
    * Create new Snakes
    * Start the movement
