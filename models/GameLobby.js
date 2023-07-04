@@ -59,13 +59,6 @@ export default class GameLobby {
   }
 
   /**
-   * @method stopLobby Stops game calling gameBoard's method
-   */ 
-  stopLobby() {
-    this.gameBoard.stop();
-  }
-
-  /**
    * @method userMove
    * @param {string} userId
    * @param {string} movement

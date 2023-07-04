@@ -24,15 +24,16 @@ const _lobbies = [];
 /**
  * @function createNewLobby
  * @param {string} userId 
+ * @param {string} roomName
  * @returns {string} lobbyId
  */
-const createNewLobby = (userId) => {
-  const lobbyId = `sala${_lobbies.length}`;
+const createNewLobby = (userId, roomName) => {
+  const lobbyId = roomName;
 
   const user = new User(userId, lobbyId);
 
   if(userExists(userId))
-    throw new UserAlreadyRegisteredError();
+    throw new UserAlreadyRegisteredError("Nome de usuario já utilizado");
 
   const lobby = new GameLobby(boardSize, speed, lobbyId);
   console.log(`LOBBYID: ${lobbyId} - CREATED`);
