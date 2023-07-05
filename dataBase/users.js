@@ -34,6 +34,7 @@ const removeUserById = (userId) => {
       _users.splice(i, 1);
       return;
     }
+    i++;
   }
 }
 
